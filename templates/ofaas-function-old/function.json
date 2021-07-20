@@ -1,0 +1,36 @@
+{
+    "functionName": "function-name",
+    "image": "function-image",
+    "lang": "Dockerfile",
+    "labels": {
+        "api": "sameple-api"
+    },
+    ---#if validateSignature
+    "secrets": [
+        "function-signature-key",
+        "function-signature-header-name"
+    ],
+    ---#endif
+    ---#if isNats
+    "annotations": {
+        "topic": "ofaas-topic"
+    },
+    ---#elif isEvent
+    "annotations": {
+        "topic": "ofaas-topic"
+    },
+    ---#elif isCron
+    "annotations": {
+        "topic": "cron-function",
+        "schedule": "ofaas-cron"
+    },
+    ---#endif
+    "limits":{
+        "cpu": "100m",
+        "memory": "40Mi"
+    },
+    "requests": {
+        "cpu": "100m",
+        "memory": "20Mi"
+    }
+}

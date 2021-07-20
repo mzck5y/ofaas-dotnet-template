@@ -1,0 +1,142 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "Efren Gonzalez",
+    "classifications": [
+        "OpenFaas Functions",
+        "MongoDb"
+    ],
+    "name": "OpenFaas C# net 5.0 Function MongoDb",
+    "shortName": "ofaas-function-mongo",
+    "identity": "Oni.OpenFaas.CSharp.DotNet.5.0.MongoDb",
+    "groupIdentity": "Oni.OpenFaas.Functions.Mongo",
+    "tags": {
+        "language": "C#",
+        "type": "project"
+    },
+    "sourceName": "Oni.Serverless.Function",
+    "preferNameDirectory": true,
+    "symbols": {
+        "image": {
+            "type": "parameter",
+            "description": "Function's Docker Image Name.",
+            "replaces": "function-image",
+            "isRequired": true
+        },
+        "useHmac": {
+            "type": "parameter",
+            "defaultValue": "false",
+            "datatype": "bool",
+            "isRequired": false
+        },
+        "trigger": {
+            "type": "parameter",
+            "datatype": "choice",
+            "defaultValue": "http",
+            "description": "Function Template",
+            "isRequired": true,
+            "choices": [
+                {
+                    "choice": "http",
+                    "description": "Use HTTP to trigger the function"
+                },
+                {
+                    "choice": "nats",
+                    "description": "Use NATS evnet to trigger the function"
+                },
+                {
+                    "choice": "cron",
+                    "description": "Use CRON to trigger the function."
+                },
+                {
+                    "choice": "eventSource",
+                    "description": "Triggers a function from an Event source like Kafka, MQTTP, etc."
+                }
+            ]
+        },
+        "topic": {
+            "type": "parameter",
+            "datatype": "string",
+            "defaultValue": "sample-topic",
+            "replaces": "ofaas-topic"
+        },
+        "schedule": {
+            "type": "parameter",
+            "datatype": "string",
+            "defaultValue": "*/5 * * * *",
+            "replaces": "ofaas-cron"
+        },
+        "connectionSecret": {
+            "type": "parameter",
+            "datatype": "string",
+            "defaultValue": "database-connection-secret",
+            "replaces": "oni-connection-name",
+            "description": "Name of the secret that holds the connection string. The secret need to be created in the cluster first before deploying the function"
+        },
+        "dbName": {
+            "type": "parameter",
+            "datatype": "string",
+            "defaultValue": "test",
+            "replaces": "oni-database-name",
+            "description": "Name of the database name to connect to."
+        },
+        "isNats": {
+            "type": "computed",
+            "datatype": "bool",
+            "value": "trigger == nats"
+        },
+        "isCron": {
+            "type": "computed",
+            "datatype": "bool",
+            "value": "trigger == cron"
+        },
+        "isEvent": {
+            "type": "computed",
+            "datatype": "bool",
+            "value": "trigger == eventSource"
+        },
+        "funcName": {
+            "type": "generated",
+            "generator": "casing",
+            "parameters": {
+                "source": "name",
+                "toLower": true
+            },
+            "replaces": "function-name"
+        },
+        "assembly": {
+            "type": "generated",
+            "generator": "casing",
+            "parameters": {
+                "source": "name",
+                "toLower": true
+            },
+            "replaces": "function-assembly-name"
+        }
+    },
+    "SpecialCustomOperations": {
+        "**/*.json": {
+            "operations": [
+                {
+                    "type": "conditional",
+                    "configuration": {
+                        "if": [
+                            "---#if"
+                        ],
+                        "else": [
+                            "---#else"
+                        ],
+                        "elseif": [
+                            "---#elseif",
+                            "---#elif"
+                        ],
+                        "endif": [
+                            "---#endif"
+                        ],
+                        "trim": "true",
+                        "wholeLine": "true"
+                    }
+                }
+            ]
+        }
+    }
+}
