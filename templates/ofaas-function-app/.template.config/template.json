@@ -1,0 +1,38 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "Efren Gonzalez",
+    "classifications": [
+        "OpenFaas Functions"
+    ],
+    "name": "OpenFaas C# Function App",
+    "shortName": "ofaas-function-app",
+    "identity": "OniCloud.OpenFaas.CSharp.DotNet.5.0",
+    "groupIdentity": "OniCloud.OpenFaas.Functions",
+    "tags": {
+        "language": "C#",
+        "type": "project"
+    },
+    "sourceName": "Serverless.Function.App",
+    "preferNameDirectory": true,
+    "sources": [
+        {
+            "modifiers": [
+                {
+                    "condition": "(!include-host)",
+                    "exclude": [
+                        "**/[Hh]ost/**"
+                    ]
+                }
+            ]
+        }
+    ],
+    "symbols": {
+        "include-host": {
+            "type": "parameter",
+            "datatype": "bool",
+            "description": "Add function hosting project.",
+            "defaultValue": "false",
+            "isRequired": false
+        }
+    }
+}

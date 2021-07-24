@@ -5,14 +5,9 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mzck5y/oni-deps:latest AS nugget
-
 FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
 WORKDIR /src
 COPY ["*.csproj", "./"]
-
-# copy dependensies from the nuget container 
-COPY --from=nugget ./nuget.config ./
 
 RUN dotnet restore
 COPY . .

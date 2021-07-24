@@ -1,0 +1,264 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "Efren Gonzalez",
+    "classifications": [
+        "OpenFaas Functions"
+    ],
+    "name": "OpenFaas C# net 5.0 Function",
+    "shortName": "ofaas-function-http",
+    "identity": "OniCloud.OpenFaas.CSharp.DotNet.5.0",
+    "groupIdentity": "OniCloud.OpenFaas.Functions",
+    "tags": {
+        "language": "C#",
+        "type": "project"
+    },
+    "sourceName": "Serverless.Function",
+    "preferNameDirectory": true,
+    "symbols": {
+        "func-name": {
+            "type": "parameter",
+            "datatype": "text",
+            "isRequired": true,
+            "replaces": "function-name",
+            "fileRename": "OpenFaasHandler"
+        },
+        "func-method": {
+            "type": "parameter",
+            "datatype": "text",
+            "isRequired": false,
+            "defaultValue": "post",
+            "replaces": "function-method"
+        },
+        "func-route": {
+            "type": "parameter",
+            "datatype": "text",
+            "isRequired": false,
+            "defaultValue": "/",
+            "replaces": "function-route"
+        },
+        "func-auth":{
+            "type": "parameter",
+            "datatype":"choice",
+            "isRequired": false,
+            "defaultValue": "none",
+            "choices": [
+                { "choice": "none", "description": "No Authorization" },
+                { "choice": "sig", "description": "Uses signature validator" },
+                { "choice": "jwt", "description": "Uses JWT Token" }
+            ]
+        },
+
+        "func-auth-type": {
+            "type": "generated",
+            "generator": "casing",
+            "parameters": {
+                "source": "func-auth",
+                "toLower": false
+            },
+            "replaces": "function-auth"
+        },
+
+        "assembly": {
+            "type": "generated",
+            "generator": "casing",
+            "parameters": {
+                "source": "funcName",
+                "toLower": true
+            },
+            "replaces": "function-assembly-name"
+        },
+        
+        "image": {
+            "type": "parameter",
+            "datatype": "text",
+            "description": "Function's Docker Image Name.",
+            "isRequired": false
+        },
+        "defaultImageName": {
+            "type": "generated",
+            "generator": "join",
+            "parameters": {
+                "symbols": [
+                    {
+                        "type": "ref",
+                        "value": "funcName"
+                    },
+                    {
+                        "type": "const",
+                        "value": ":latest"
+                    }
+                ]
+            }
+        },
+        "imageName": {
+            "type": "generated",
+            "generator": "coalesce",
+            "parameters": {
+                "sourceVariableName": "image",
+                "fallbackVariableName": "defaultImageName"
+            },
+            "replaces": "function-image"
+        },
+        
+        "signature": {
+            "type": "parameter",
+            "datatype": "choice",
+            "defaultValue": "none",
+            "description": "Validate Request Signature",
+            "isRequired": false,
+            "choices": [
+                {
+                    "choice": "none",
+                    "description": "Don't validate request signature."
+                },
+                {
+                    "choice": "hmac-sha1",
+                    "description": "Validate signature using hmac-sha1 algorithm."
+                },
+                {
+                    "choice": "hmac-sha256",
+                    "description": "Validate signature using hmac-sha256 algorithm."
+                },
+                {
+                    "choice": "hmac-sha256-v4",
+                    "description": "Validate signature using hmac-sha256 V4 Amazon algorithm. NOTE NOT IMPLEMENTED"
+                },
+                {
+                    "choice": "ed25519",
+                    "description": "Validate signature using EdDSA Curve25519 algorithm."
+                }
+            ]
+        },
+        "signature-key": {
+            "type": "parameter",
+            "datatype": "text",
+            "defaultValue": "function-signature-key",
+            "isRequired": false,
+            "replaces": "sig-key"
+        },
+        "signature-header-name": {
+            "type": "parameter",
+            "datatype": "text",
+            "defaultValue": "function-signature-header-name",
+            "isRequired": false,
+            "replaces": "sig-header-name"
+        },
+        "hasSignature": {
+            "type": "computed",
+            "datatype": "bool",
+            "value": "signature != \"none\""
+        },
+        "isHmacSHA1": {
+            "type": "computed",
+            "datatype": "bool",
+            "value": "signature == \"hmac-sha1\""
+        },
+        "isHmacSHA256": {
+            "type": "computed",
+            "datatype": "bool",
+            "value": "signature == \"hmac-sha256\""
+        },
+        "isHmacSHA256v4": {
+            "type": "computed",
+            "datatype": "bool",
+            "value": "signature == \"hmac-sha256-v4\""
+        },
+        "isED25519": {
+            "type": "computed",
+            "datatype": "bool",
+            "value": "signature == \"ed25519\""
+        },
+       
+        "limits-cpu":{
+            "type": "parameter",
+            "datatype":"text",
+            "defaultValue": "100m",
+            "isRequired": false,
+            "replaces": "limits-cpu-yaml"
+        },
+
+        "limits-memory":{
+            "type": "parameter",
+            "datatype":"text",
+            "defaultValue": "40Mi",
+            "isRequired": false,
+            "replaces": "limits-memory-yaml"
+        },
+
+        "requests-cpu":{
+            "type": "parameter",
+            "datatype":"text",
+            "defaultValue": "100m",
+            "isRequired": false,
+            "replaces": "requests-cpu-yaml"
+        },
+
+        "requests-memory":{
+            "type": "parameter",
+            "datatype":"text",
+            "defaultValue": "20Mi",
+            "isRequired": false,
+            "replaces": "requests-memory-yaml"
+        },
+
+        "api":{
+            "type": "parameter",
+            "datatype":"text",
+            "replaces": "api-name",
+            "isRequired": false,
+            "defaultValue": "none",
+            "description": "The Name of the API the function belongs to."
+        },
+        "api-namespace-const": {
+            "type": "generated",
+            "generator": "constant",
+            "parameters": {
+                "value": "com.onicloud.api"
+            },
+            "replaces": "api-namespace"
+        },
+        
+        "hasApiName": {
+            "type": "computed",
+            "datatype":"bool",
+            "value": "api != \"none\""
+        },
+
+        "hasSecrets": {
+            "type": "computed",
+            "datatype": "bool",
+            "value": "(hasSignature)"
+        },
+        "hasAnnotations": {
+            "type": "computed",
+            "datatype": "bool",
+            "value": "hasApiName"
+        }
+    },
+    "SpecialCustomOperations": {
+        "**/*.json": {
+            "operations": [
+                {
+                    "type": "conditional",
+                    "configuration": {
+                        "if": [
+                            "---#if"
+                        ],
+                        "else": [
+                            "---#else"
+                        ],
+                        "elseif": [
+                            "---#elseif",
+                            "---#elif"
+                        ],
+                        "endif": [
+                            "---#endif"
+                        ],
+                        "trim": "true",
+                        "wholeLine": "true"
+                    }
+                }
+            ]
+        }
+    }
+}

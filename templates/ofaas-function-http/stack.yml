@@ -1,0 +1,36 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+functions:
+  function-name:
+    lang: dockerfile
+    handler: ./OpenFaasHandler
+    image: function-image
+    //#if (hasSecrets)
+    secrets:
+      //#if (hasSignature)
+      - sig-key
+      - sig-header-name
+      //#endif
+    //#endif
+    //#if (hasAnnotations)
+    annotations:
+      //#if (hasApiName)
+      api-namespace: api-name
+      //#endif
+      //#if (isEvent)
+      topic: "ofaas-topic"
+      //#endif
+      //#if (isCron)
+      topic: cron-function
+      schedule: "ofaas-cron"
+      //#endif
+    //#endif
+    limits:
+      cpu: limits-cpu-yaml
+      memory: limits-memory-yaml
+    requests:
+      cpu: requests-cpu-yaml
+      memory: requests-memory-yaml
+      
