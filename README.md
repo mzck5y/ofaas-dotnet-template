@@ -15,5 +15,3 @@ dotnet new -i ./ofaas-function-http
 ~~~
 
 Please note that the templates are still in alpha if you find any issues please open and issue or if you like to contribute create a Pull Request.
-
-Efren G.
