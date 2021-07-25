@@ -18,6 +18,7 @@
         "func-name": {
             "type": "parameter",
             "datatype": "text",
+            "description": "Function Name",
             "isRequired": true,
             "replaces": "function-name",
             "fileRename": "OpenFaasHandler"
@@ -25,6 +26,7 @@
         "func-method": {
             "type": "parameter",
             "datatype": "text",
+            "description": "Function HTTP method",
             "isRequired": false,
             "defaultValue": "post",
             "replaces": "function-method"
@@ -32,32 +34,57 @@
         "func-route": {
             "type": "parameter",
             "datatype": "text",
+            "description": "Function HTTP Route",
             "isRequired": false,
             "defaultValue": "/",
             "replaces": "function-route"
         },
-        "func-auth":{
+        "func-auth": {
             "type": "parameter",
-            "datatype":"choice",
+            "datatype": "choice",
             "isRequired": false,
             "defaultValue": "none",
+            "description": "Function authorization type",
             "choices": [
-                { "choice": "none", "description": "No Authorization" },
-                { "choice": "sig", "description": "Uses signature validator" },
-                { "choice": "jwt", "description": "Uses JWT Token" }
+                {
+                    "choice": "none",
+                    "description": "No Authorization"
+                },
+                {
+                    "choice": "sig",
+                    "description": "Uses signature validator"
+                },
+                {
+                    "choice": "jwt",
+                    "description": "Uses JWT Token"
+                }
             ]
         },
-
         "func-auth-type": {
             "type": "generated",
-            "generator": "casing",
+            "generator": "switch",
+            "replaces": "function-auth",
             "parameters": {
-                "source": "func-auth",
-                "toLower": false
-            },
-            "replaces": "function-auth"
+                "datatype": "text",
+                "evaluator": "C++",
+                "cases": [
+                    {
+                        "condition": "(func-auth == 'none')",
+                        "value": "jsw"
+                    },
+                    {
+                        "condition": "(func-auth == 'sig')",
+                        "value": "Signature"
+                    },
+                    {
+                        "condition": "(func-auth == 'jwt')",
+                        "value": "JWT"
+                    }
+                ]
+            }
         },
 
+        // Assembly name used in the project and Docker files.
         "assembly": {
             "type": "generated",
             "generator": "casing",
@@ -67,11 +94,10 @@
             },
             "replaces": "function-assembly-name"
         },
-        
         "image": {
             "type": "parameter",
             "datatype": "text",
-            "description": "Function's Docker Image Name.",
+            "description": "Function's Docker Image Name with format `<image-tag>:<version|latest>. If name is not provided the name of the function will be used. If version is not provided \"latest\" will be used.",
             "isRequired": false
         },
         "defaultImageName": {
@@ -99,12 +125,13 @@
             },
             "replaces": "function-image"
         },
-        
-        "signature": {
+
+        // Signature parameters
+        "signature-alg": {
             "type": "parameter",
             "datatype": "choice",
             "defaultValue": "none",
-            "description": "Validate Request Signature",
+            "description": "If authorization type is set to sig here is were we specify the signature algorithm.",
             "isRequired": false,
             "choices": [
                 {
@@ -119,10 +146,10 @@
                     "choice": "hmac-sha256",
                     "description": "Validate signature using hmac-sha256 algorithm."
                 },
-                {
-                    "choice": "hmac-sha256-v4",
-                    "description": "Validate signature using hmac-sha256 V4 Amazon algorithm. NOTE NOT IMPLEMENTED"
-                },
+                // {
+                //     "choice": "hmac-sha256-v4",
+                //     "description": "Validate signature using hmac-sha256 V4 Amazon algorithm. NOTE NOT IMPLEMENTED"
+                // },
                 {
                     "choice": "ed25519",
                     "description": "Validate signature using EdDSA Curve25519 algorithm."
@@ -132,6 +159,7 @@
         "signature-key": {
             "type": "parameter",
             "datatype": "text",
+            "description": "The name of the secet that contains the key to validate the signature",
             "defaultValue": "function-signature-key",
             "isRequired": false,
             "replaces": "sig-key"
@@ -139,6 +167,7 @@
         "signature-header-name": {
             "type": "parameter",
             "datatype": "text",
+            "description": "The name of the HTTP request header that contains the signature digest to validate",
             "defaultValue": "function-signature-header-name",
             "isRequired": false,
             "replaces": "sig-header-name"
@@ -146,64 +175,67 @@
         "hasSignature": {
             "type": "computed",
             "datatype": "bool",
-            "value": "signature != \"none\""
+            "value": "signature-alg != \"none\""
         },
         "isHmacSHA1": {
             "type": "computed",
             "datatype": "bool",
-            "value": "signature == \"hmac-sha1\""
+            "value": "signature-alg == \"hmac-sha1\""
         },
         "isHmacSHA256": {
             "type": "computed",
             "datatype": "bool",
-            "value": "signature == \"hmac-sha256\""
+            "value": "signature-alg == \"hmac-sha256\""
         },
         "isHmacSHA256v4": {
             "type": "computed",
             "datatype": "bool",
-            "value": "signature == \"hmac-sha256-v4\""
+            "value": "signature-alg == \"hmac-sha256-v4\""
         },
         "isED25519": {
             "type": "computed",
             "datatype": "bool",
-            "value": "signature == \"ed25519\""
+            "value": "signature-alg == \"ed25519\""
         },
-       
-        "limits-cpu":{
+
+        // Limits Parameters
+        "limits-cpu": {
             "type": "parameter",
-            "datatype":"text",
+            "datatype": "text",
+            "description": "Applying CPu limits to the function allows you to prevent them to consuming too many resources. Requests ensures the stated host resource is available for the container to use",
             "defaultValue": "100m",
             "isRequired": false,
             "replaces": "limits-cpu-yaml"
         },
-
-        "limits-memory":{
+        "limits-memory": {
             "type": "parameter",
-            "datatype":"text",
+            "datatype": "text",
+            "description": "Applying memory limits to the function allows you to prevent them to consuming too many resources. Requests ensures the stated host resource is available for the container to use",
             "defaultValue": "40Mi",
             "isRequired": false,
             "replaces": "limits-memory-yaml"
         },
-
-        "requests-cpu":{
+        "requests-cpu": {
             "type": "parameter",
-            "datatype":"text",
+            "datatype": "text",
+            "description": "Applying CPu limits to the function allows you to prevent them to consuming too many resources. Requests ensures the stated host resource is available for the container to use",
             "defaultValue": "100m",
             "isRequired": false,
             "replaces": "requests-cpu-yaml"
         },
-
-        "requests-memory":{
+        "requests-memory": {
             "type": "parameter",
-            "datatype":"text",
+            "datatype": "text",
+            "description": "Applying Memory limits to the function allows you to prevent them to consuming too many resources. Requests ensures the stated host resource is available for the container to use",
             "defaultValue": "20Mi",
             "isRequired": false,
             "replaces": "requests-memory-yaml"
         },
 
-        "api":{
+        // Api Namespace
+        "api": {
             "type": "parameter",
-            "datatype":"text",
+            "datatype": "text",
             "replaces": "api-name",
             "isRequired": false,
             "defaultValue": "none",
@@ -217,13 +249,13 @@
             },
             "replaces": "api-namespace"
         },
-        
+
+        // Parameters to check for features
         "hasApiName": {
             "type": "computed",
-            "datatype":"bool",
-            "value": "api != \"none\""
+            "datatype": "bool",
+            "value": "(api != \"none\")"
         },
-
         "hasSecrets": {
             "type": "computed",
             "datatype": "bool",
@@ -232,7 +264,7 @@
         "hasAnnotations": {
             "type": "computed",
             "datatype": "bool",
-            "value": "hasApiName"
+            "value": "(hasApiName)"
         }
     },
     "SpecialCustomOperations": {
