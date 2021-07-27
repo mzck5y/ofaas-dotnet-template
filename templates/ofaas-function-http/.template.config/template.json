@@ -70,21 +70,19 @@
                 "cases": [
                     {
                         "condition": "(func-auth == 'none')",
-                        "value": "jsw"
+                        "value": "AuthorizationType.None"
                     },
                     {
                         "condition": "(func-auth == 'sig')",
-                        "value": "Signature"
+                        "value": "AuthorizationType.Signature"
                     },
                     {
                         "condition": "(func-auth == 'jwt')",
-                        "value": "JWT"
+                        "value": "AuthorizationType.JWT"
                     }
                 ]
             }
         },
-
-        // Assembly name used in the project and Docker files.
         "assembly": {
             "type": "generated",
             "generator": "casing",
@@ -125,8 +123,6 @@
             },
             "replaces": "function-image"
         },
-
-        // Signature parameters
         "signature-alg": {
             "type": "parameter",
             "datatype": "choice",
@@ -177,28 +173,29 @@
             "datatype": "bool",
             "value": "signature-alg != \"none\""
         },
-        "isHmacSHA1": {
-            "type": "computed",
-            "datatype": "bool",
-            "value": "signature-alg == \"hmac-sha1\""
+        "sig-alg-type": {
+            "type": "generated",
+            "generator": "switch",
+            "replaces": "sig-alg",
+            "parameters": {
+                "datatype": "text",
+                "evaluator": "C++",
+                "cases": [
+                    {
+                        "condition": "(func-auth == 'hmac-sha1')",
+                        "value": "SignerAlgorithm.HmacSha1"
+                    },
+                    {
+                        "condition": "(func-auth == 'hmac-sha256')",
+                        "value": "SignerAlgorithm.HmacSha256"
+                    },
+                    {
+                        "condition": "(func-auth == 'hmac-ed25519')",
+                        "value": "SignerAlgorithm.Ed25519"
+                    }
+                ]
+            }
         },
-        "isHmacSHA256": {
-            "type": "computed",
-            "datatype": "bool",
-            "value": "signature-alg == \"hmac-sha256\""
-        },
-        "isHmacSHA256v4": {
-            "type": "computed",
-            "datatype": "bool",
-            "value": "signature-alg == \"hmac-sha256-v4\""
-        },
-        "isED25519": {
-            "type": "computed",
-            "datatype": "bool",
-            "value": "signature-alg == \"ed25519\""
-        },
-
-        // Limits Parameters
         "limits-cpu": {
             "type": "parameter",
             "datatype": "text",
@@ -231,8 +228,6 @@
             "isRequired": false,
             "replaces": "requests-memory-yaml"
         },
-
-        // Api Namespace
         "api": {
             "type": "parameter",
             "datatype": "text",
@@ -249,8 +244,6 @@
             },
             "replaces": "api-namespace"
         },
-
-        // Parameters to check for features
         "hasApiName": {
             "type": "computed",
             "datatype": "bool",
@@ -265,32 +258,6 @@
             "type": "computed",
             "datatype": "bool",
             "value": "(hasApiName)"
-        }
-    },
-    "SpecialCustomOperations": {
-        "**/*.json": {
-            "operations": [
-                {
-                    "type": "conditional",
-                    "configuration": {
-                        "if": [
-                            "---#if"
-                        ],
-                        "else": [
-                            "---#else"
-                        ],
-                        "elseif": [
-                            "---#elseif",
-                            "---#elif"
-                        ],
-                        "endif": [
-                            "---#endif"
-                        ],
-                        "trim": "true",
-                        "wholeLine": "true"
-                    }
-                }
-            ]
         }
     }
 }

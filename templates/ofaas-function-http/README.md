@@ -1,4 +1,4 @@
-# ofaas-dotnet-template
+# OpenFaaS HTTP Trigerd Function Template
 dotnet 5.0 cli templates for OpenFaas
 
 # How to install the template

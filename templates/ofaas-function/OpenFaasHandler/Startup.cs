@@ -38,6 +38,7 @@ namespace Oni.Serverless.Function
             {
                 op.SigningKey = OpenFaasUtils.GetSecret("sig-key");
                 op.HeaderName = OpenFaasUtils.GetSecret("sig-header-name");
+                op.Alg = "sig-alg"
             });
 #endif
         }
@@ -52,7 +53,7 @@ namespace Oni.Serverless.Function
             app.UseRouting();
 
 #if isHmacSHA1
-            app.UseHmacSha1Validator();
+            app.UseSignatureValidator();
 
 #elif isHmacSHA256
             app.UseHmacSha256Validator();

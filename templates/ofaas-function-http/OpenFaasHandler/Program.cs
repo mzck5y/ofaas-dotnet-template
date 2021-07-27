@@ -18,17 +18,25 @@ namespace host
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    // webBuilder.UseStartup<Startup>();
                     webBuilder.ConfigureServices(services =>
                         {
                             services.AddTransient<FunctionHandler>();
+                            #if hasSignature
+                            services.Configure<SignatureValidationOptions>(op =>
+                            {
+                                op.SigningKey = OpenFaasUtils.GetSecret("sig-key");
+                                op.HeaderName = OpenFaasUtils.GetSecret("sig-header-name");
+                                op.Alg = "sig-alg"
+                            });
+                            #endif
                         })
                         .Configure(app =>
                         {
                             ILoggerFactory loggerFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory>();
                             ILogger logger = loggerFactory.CreateLogger("function-host");
-                            FunctionHandler func = app.ApplicationServices.GetRequiredService<FunctionHandler>();
                             IWebHostEnvironment env = app.ApplicationServices.GetRequiredService<IWebHostEnvironment>();
+
+                            FunctionHandler func = app.ApplicationServices.GetRequiredService<FunctionHandler>();
 
                             logger.LogInformation("Function Host Strarting...");
 
@@ -39,6 +47,9 @@ namespace host
 
                             app.UseRouting();
 
+                            #if hasSignature
+                            app.UseSignatureValidator();
+                            #endif
                             app.UseEndpoints(endpoints =>
                             {
                                 endpoints.Map("function-route", async context =>

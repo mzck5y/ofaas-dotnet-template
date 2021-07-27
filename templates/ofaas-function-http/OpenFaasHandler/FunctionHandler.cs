@@ -8,7 +8,11 @@ namespace host.Function
     {
         #region Public Methods
 
-        // [Function("function-name", AuthorizationType.function-auth, "function-route", function-method)]
+        // [HttpTrigger(
+        //     "function-name",
+        //     AuthorizationType.function-auth,
+        //     "function-route",
+        //     function-method)]
         public async Task RunAsync(HttpContext ctx)
         {
             string name = ctx.Request.Query["name"];
