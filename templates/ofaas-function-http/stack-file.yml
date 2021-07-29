@@ -13,6 +13,9 @@ functions:
       - sig-key
       - sig-header-name
       //#endif
+      //#if (includeJwt)
+      - autority-server-secret
+      //#endif
     //#endif
     //#if (hasAnnotations)
     annotations:

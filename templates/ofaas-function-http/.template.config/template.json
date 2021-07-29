@@ -12,7 +12,7 @@
         "language": "C#",
         "type": "project"
     },
-    "sourceName": "Serverless.Function",
+    "sourceName": "OniCloud.Serverless.Function",
     "preferNameDirectory": true,
     "symbols": {
         "func-name": {
@@ -46,7 +46,6 @@
                 ]
             }
         },
-
         "funcHandler": {
             "type": "generated",
             "generator": "regex",
@@ -63,7 +62,6 @@
             "replaces": "func-handler",
             "fileRename": "OpenFaasHandler"
         },
-
         "func-method": {
             "type": "parameter",
             "datatype": "text",
@@ -92,12 +90,8 @@
                     "description": "No Authorization"
                 },
                 {
-                    "choice": "sig",
-                    "description": "Uses signature validator"
-                },
-                {
                     "choice": "jwt",
-                    "description": "Uses JWT Token"
+                    "description": "Uses JWT Token to authenticate the caller"
                 }
             ]
         },
@@ -114,10 +108,6 @@
                         "value": "AuthorizationType.None"
                     },
                     {
-                        "condition": "(func-auth == 'sig')",
-                        "value": "AuthorizationType.Signature"
-                    },
-                    {
                         "condition": "(func-auth == 'jwt')",
                         "value": "AuthorizationType.JWT"
                     }
@@ -128,7 +118,7 @@
             "type": "generated",
             "generator": "casing",
             "parameters": {
-                "source": "funcName",
+                "source": "funcNameRegex",
                 "toLower": true
             },
             "replaces": "function-assembly-name"
@@ -139,7 +129,6 @@
             "description": "Function's Docker Image Name with format `<image-tag>:<version|latest>. If name is not provided the name of the function will be used. If version is not provided \"latest\" will be used.",
             "isRequired": false
         },
-        
         "defaultImageName": {
             "type": "generated",
             "generator": "join",
@@ -224,15 +213,15 @@
                 "evaluator": "C++",
                 "cases": [
                     {
-                        "condition": "(func-auth == 'hmac-sha1')",
+                        "condition": "(signature-alg == 'hmac-sha1')",
                         "value": "SignerAlgorithm.HmacSha1"
                     },
                     {
-                        "condition": "(func-auth == 'hmac-sha256')",
+                        "condition": "(signature-alg == 'hmac-sha256')",
                         "value": "SignerAlgorithm.HmacSha256"
                     },
                     {
-                        "condition": "(func-auth == 'hmac-ed25519')",
+                        "condition": "(signature-alg == 'hmac-ed25519')",
                         "value": "SignerAlgorithm.Ed25519"
                     }
                 ]
@@ -294,12 +283,25 @@
         "hasSecrets": {
             "type": "computed",
             "datatype": "bool",
-            "value": "(hasSignature)"
+            "value": "(hasSignature || func-auth == 'jwt')"
         },
         "hasAnnotations": {
             "type": "computed",
             "datatype": "bool",
             "value": "(hasApiName)"
+        },
+        "includeJwt": {
+            "type": "computed",
+            "datatype": "bool",
+            "value": "(func-auth == 'jwt')"
+        },
+        "jwtAutoritryServer": {
+            "type": "generated",
+            "generator": "constant",
+            "replaces": "autority-server-secret",
+            "parameters": {
+                "value": "autority-server"
+            }
         }
     }
 }

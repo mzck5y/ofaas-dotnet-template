@@ -1,18 +1,16 @@
 ﻿using Microsoft.AspNetCore.Http;
+using OniCloud.OpenFaas.Attributes;
+using OniCloud.OpenFaas.Models;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace host.Function
+namespace Serverless.Function.Handler
 {
     public class FunctionHandler
     {
         #region Public Methods
 
-        // [HttpTrigger(
-        //     "function-name",
-        //     function-auth,
-        //     "function-route",
-        //     function-method)]
+        [HttpTrigger("function-name", function-auth, "function-route", "function-method")]
         public async Task RunAsync(HttpContext ctx)
         {
             string name = ctx.Request.Query["name"];
