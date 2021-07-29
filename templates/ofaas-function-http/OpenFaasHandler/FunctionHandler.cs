@@ -10,7 +10,7 @@ namespace host.Function
 
         // [HttpTrigger(
         //     "function-name",
-        //     AuthorizationType.function-auth,
+        //     function-auth,
         //     "function-route",
         //     function-method)]
         public async Task RunAsync(HttpContext ctx)

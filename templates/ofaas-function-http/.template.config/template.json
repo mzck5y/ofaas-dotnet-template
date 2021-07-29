@@ -20,9 +20,50 @@
             "datatype": "text",
             "description": "Function Name",
             "isRequired": true,
+            "fileRename": "func-handler-project"
+        },
+        "funcNameLower": {
+            "type": "generated",
+            "generator": "casing",
+            "parameters": {
+                "source": "func-name",
+                "toLower": true
+            }
+        },
+        "funcNameRegex": {
+            "type": "generated",
+            "generator": "regex",
+            "dataType": "string",
             "replaces": "function-name",
+            "fileRename": "stack-file",
+            "parameters": {
+                "source": "funcNameLower",
+                "steps": [
+                    {
+                        "regex": "_",
+                        "replacement": "-"
+                    }
+                ]
+            }
+        },
+
+        "funcHandler": {
+            "type": "generated",
+            "generator": "regex",
+            "dataType": "string",
+            "parameters": {
+                "source": "funcNameLower",
+                "steps": [
+                    {
+                        "regex": "_",
+                        "replacement": "-"
+                    }
+                ]
+            },
+            "replaces": "func-handler",
             "fileRename": "OpenFaasHandler"
         },
+
         "func-method": {
             "type": "parameter",
             "datatype": "text",
@@ -98,6 +139,7 @@
             "description": "Function's Docker Image Name with format `<image-tag>:<version|latest>. If name is not provided the name of the function will be used. If version is not provided \"latest\" will be used.",
             "isRequired": false
         },
+        
         "defaultImageName": {
             "type": "generated",
             "generator": "join",
@@ -105,7 +147,7 @@
                 "symbols": [
                     {
                         "type": "ref",
-                        "value": "funcName"
+                        "value": "funcNameRegex"
                     },
                     {
                         "type": "const",
